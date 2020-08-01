@@ -1,0 +1,10 @@
+---
+- name: copy skel dir
+  hosts: rhs1.contoso.com
+
+  tasks:
+    - name: copy
+      copy:
+        src: files/skel-ansible
+        dest: /etc/
+...

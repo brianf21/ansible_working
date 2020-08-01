@@ -1,0 +1,6 @@
+---
+plugin: ldap_inventory
+domain: 'contoso.com'
+username: administrator@contoso.com
+password: "Pa11word"
+search_ou: "DC=contoso,DC=com"

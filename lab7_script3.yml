@@ -1,0 +1,26 @@
+network_data:
+  - sname: rhs1
+    lname: rhs1.contoso.com
+    ipv4: 10.0.0.4
+    netmask: 255.255.255.0
+    gw4: 10.0.0.1
+    dns: 10.0.0.2
+  - sname: rhs2
+    lname: rhs2.contoso.com
+    ipv4: 10.0.0.5
+    netmask: 255.255.255.0
+    gw4: 10.0.0.1
+    dns: 10.0.0.2
+  - sname: dc
+    lname: dc.contoso.com
+    ipv4: 10.0.0.2
+    netmask: 255.255.255.0
+    gw4: 10.0.0.1
+    dns: 127.0.0.1
+  - sname: ms
+    lname: ms.contoso.com
+    ipv4: 10.0.0.3
+    netmask: 255.255.255.0
+    gw4: 10.0.0.1
+    dns: 10.0.0.2
+...

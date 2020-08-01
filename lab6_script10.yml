@@ -1,0 +1,82 @@
+---
+- name: Cleanup server before running play
+  import_playbook: lab6_script9.yml
+
+- name: Setup web/database server
+  hosts: rhs1.contoso.com,rhs2.contoso.com
+
+  tasks:
+
+    - name: Install or update required software
+      yum:
+        name:
+          - firewalld
+          - httpd
+          - mariadb-server
+          - php
+          - php-mysqlnd
+        state: latest
+      notify: 
+        - restart firewalld
+        - restart httpd
+        - restart mariadb
+      tags:
+        - fw
+        - web
+        - db
+
+    - name: firewalld enabled and running
+      service:
+        name: firewalld
+        enabled: true
+        state: started
+      tags: fw
+
+    - name: firewalld permits http service
+      firewalld:
+        zone: public
+        service: http
+        state: enabled
+        permanent: true
+        immediate: true
+      tags: fw
+
+    - name: httpd enabled and running
+      service:
+        name: httpd
+        enabled: true
+        state: started
+      tags: web
+
+    - name: mariadb enabled and running
+      service:
+        name: mariadb
+        enabled: true
+        state: started
+      tags: db
+
+    - name: Push test index.html to server
+      copy:
+        src: files/index.html
+        dest: /var/www/html/
+      tags: web
+
+    - include_tasks: lab6_script11.yml
+
+  handlers:
+
+    - name: restart firewalld
+      service:
+        name: firewalld
+        state: restarted
+
+    - name: restart httpd
+      service:
+        name: httpd
+        state: restarted
+
+    - name: restart mariadb
+      service:
+        name: mariadb
+        state: restarted
+...

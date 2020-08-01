@@ -1,0 +1,23 @@
+# Module stat
+# checksum of file
+---
+- name: Verify file
+  hosts: rhs2.contoso.com
+
+  vars:
+    path: /tmp/copy_me.txt
+
+  tasks:
+    - name: Verify the checksum of a file
+      stat:
+        path: "{{ path }}"
+        checksum_algorithm: md5
+      register: result
+
+    - name: Print the result
+      debug:
+        msg: 
+          - "The checksum of the file is: {{ result.stat.checksum }}"
+          - "The full results: {{ result }}"
+          # it returns dicts in json format; too much data
+...

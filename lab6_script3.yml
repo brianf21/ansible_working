@@ -1,0 +1,9 @@
+---
+- name: Messing with host patterns
+  hosts: 'fhost*'
+
+  tasks:
+    - name: Print out inventory hostname
+      debug:
+        msg: "{{ inventory_hostname }}"
+...

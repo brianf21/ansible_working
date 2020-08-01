@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+pre { color: red; }
+code { color: blue; }
+h1 { color: DarkSlateGray; }
+</style>
+</head>
+<body style="font-family: 'Lato', sans-serif;">
+<h1>Lab 8 - Self Lab</h1>
+<p align="center"><iframe width="1024" height="576" src="https://www.youtube.com/embed/H3vHd-_x-ag?wmode=opaque" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen=""></iframe></p>
+<p>Create a role called devops.ansible_user that will deploy a custom skeleton directory (supplied) then create a user account with ssh keys based off the newly deployed skeleton directory. Below is an example playbook that could be used to deploy the role. Your role should also copy the user's public ssh key to the authorized_key file for the devops for rhs1.contoso.com.</p>
+<p><code>code lab8_script.yml</code></p>
+<pre>---
+- name: Deploy Ansible user based on custom skel
+  hosts: rhs1.contoso.com
+
+  roles:
+    - role: devops.ansible_user
+        vars:
+          username: jdoe
+          comment: John Doe
+          skelton: /etc/skel-ansible
+          generate_ssh_key: true
+...</pre>
+<p>Download the skel-ansible.tar.gz from D2L to the files folder of your role. Change into that directory and unzip and untar. Please store the password in a vault.</p>
+<p><code>tar -vxzf skel-ansible.tar.gz</code></p>
+<p>Here is a list of modules you should use in your role:</p>
+<ul>
+<li>user</li>
+<li>copy</li>
+<li>fetch</li>
+<li>authorized_key</li>
+</ul>
+</body>
+</html>

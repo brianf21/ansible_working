@@ -1,0 +1,13 @@
+---
+- name: Deploy Ansible user based on custom skel
+  hosts: rhs1.contoso.com
+
+  vars:X
+    username: jdoe
+    comment: John Doe
+    skelton: /etc/skel-ansible
+    generate_ssh_key: true
+
+  roles:
+    - role: devops.ansible_user
+...

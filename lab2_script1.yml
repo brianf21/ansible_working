@@ -1,0 +1,14 @@
+# Playbook with one task
+---
+- name: Add a user to a linux machine
+  hosts: rhs2.contoso.com
+  vars:
+    password: Pa11word
+  tasks:
+    - name: Add uone
+      user:
+        name: uone
+        comment: User One
+        state: present
+        password: "{{ password | password_hash('sha512') }}"
+...

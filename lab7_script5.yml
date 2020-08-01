@@ -1,0 +1,25 @@
+---
+- name: setup a development environment
+  hosts: rhs2.contoso.com
+  
+  pre_tasks:
+    - name: Pretask 1
+      debug:
+        msg: 'This is the first pretask.'
+
+    - name: Pretask 2
+      debug:
+        msg: 'This is the second pretask.'
+
+  roles:
+    - role: crivetimihai.development.vscode
+
+  post_tasks:
+    - name: Post Task 1
+      debug:
+        msg: 'This is the first post task.'
+
+    - name: Post Task 2
+      debug:
+        msg: 'This is the second post task.'
+...

@@ -1,0 +1,24 @@
+# Playbook with multiple tasks for Windows machine
+---
+- name: Install Software
+  hosts: ms.contoso.com
+  tasks:
+          - name: Install NotePadPlusPlus
+            win_chocolatey:
+                    name: notepadplusplus
+                    architecture: x86
+                    state: present
+
+          - name: Install Chrome
+            win_chocolatey:
+                    name: googlechrome
+                    state: present
+
+          - name: Install All Software
+            win_chocolatey:
+                    name:
+                            - putty.install
+                            - procexp
+                            - git
+                    state: present
+...

@@ -1,0 +1,51 @@
+# Module blockinfile
+# add block of text to file
+---
+- name: Adding some lines
+  hosts: rhs2.contoso.com
+
+  vars:
+    file: /tmp/copy_me.txt
+
+  tasks:
+    - name: This is where the magic happens
+      blockinfile:
+        path: "{{ file }}"
+        block: |
+          Adding a line
+          This is a new line
+          Adding yet one more line
+          Okay, this is the last line
+        state: present
+
+    - name: Second Task
+      command: cat "{{ file }}"
+      register: cat
+
+    - name: Third Task
+      debug: var=cat.stdout_lines
+
+- name: Adding some lines to a file that isn't there
+  hosts: rhs2.contoso.com
+
+  vars:
+    file: /tmp/copy_me_4.txt
+
+  tasks:
+    - name: This is where the magic happens
+      blockinfile:
+        path: "{{ file }}"
+        block: |
+          Adding a line
+          This is a new line
+          Adding yet one more line
+          Okay, this is the last line
+        state: present
+
+    - name: Second Task
+      command: cat "{{ file }}"
+      register: cat
+
+    - name: Third Task
+      debug: var=cat.stdout_lines
+...

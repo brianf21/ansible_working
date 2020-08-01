@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html>
+<style>
+pre { color: red; }
+code { color: blue; }
+h1 { color: DarkSlateGray; }
+</style>
+</head>
+<body style="font-family: 'Lato', sans-serif;">
+<h1>Deploying Custon Files With Jinja2 Templates</h1>
+<p align="center"><iframe src="https://www.youtube.com/embed/A7zvXgbamm8?wmode=opaque" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen="" width="1024" height="576" frameborder="0"></iframe></p>
+<p>Sign in as devops and go to the ansible_working directory.</p>
+<p>Create the following 5 files.</p>
+<p><code>code lab7_script1.yml</code></p>
+<pre>---
+- name: Update all /etc/hosts
+  hosts: rhs1.contoso.com,rhs2.contoso.com
+  vars_files:
+    lab7_script3.yml
+  tasks:
+    - name: Create an /etc/hosts
+      template:
+        dest: /etc/hosts.tmp
+        src: templates/hosts.j2
+...</pre>
+<p>Save the work and exit code.</p>
+<p><code>code lab7_script2.yml</code></p>
+<pre>---
+- name: Update all /etc/hosts
+  hosts: rhs1.contoso.com,rhs2.contoso.com
+  vars_files:
+    lab7_script3.yml
+  tasks:
+    - name: Create an /etc/hosts
+      template:
+        dest: /etc/hosts.tmp
+        src: templates/hosts1.j2
+...</pre>
+<p>Save the work and exit code.</p>
+<p><code>code lab7_script3.yml</code></p>
+<pre>network_data:
+  - sname: rhs1
+    lname: rhs1.contoso.com
+    ipv4: 10.0.0.4
+    netmask: 255.255.255.0
+    gw4: 10.0.0.1
+    dns: 10.0.0.2
+  - sname: rhs2
+    lname: rhs2.contoso.com
+    ipv4: 10.0.0.5
+    netmask: 255.255.255.0
+    gw4: 10.0.0.1
+    dns: 10.0.0.2
+  - sname: dc
+    lname: dc.contoso.com
+    ipv4: 10.0.0.2
+    netmask: 255.255.255.0
+    gw4: 10.0.0.1
+    dns: 127.0.0.1
+  - sname: ms
+    lname: ms.contoso.com
+    ipv4: 10.0.0.3
+    netmask: 255.255.255.0
+    gw4: 10.0.0.1
+    dns: 10.0.0.2
+...</pre>
+<p>Save the work and exit code.</p>
+<p><code>mkdir templates</code></p>
+<p><code>code templates/hosts.j2</code></p>
+<pre>127.0.0.1    localhost localhost.localdomain localhost4 localhost4.localdomain4
+::1          localhost localhost.localdomain localhost6 localhost6.localdomain6
+127.0.0.1    {{ ansible_facts['nodename'] }} {{ ansible_facts['hostname'] }}
+{% for host in network_data if not host.lname == inventory_hostname %}
+{{ host.ipv4 }}     {{ host.lname }} {{ host.sname }}
+{% endfor %}
+10.0.0.4    fhost1.contoso.com fhost1
+10.0.0.4    fhost2.contoso.com fhost2
+10.0.0.4    fhost3.contoso.com fhost3
+10.0.0.4    fhost4.contoso.com fhost4
+10.0.0.4    fhost5.contoso.com fhost5
+10.0.0.4    fhost6.contoso.com fhost6
+10.0.0.4    fhost7.contoso.com fhost7</pre>
+<p>Save the work and exit code.</p>
+<p><code>code templates/hosts1.j2</code></p>
+<pre>127.0.0.1    localhost localhost.localdomain localhost4 localhost4.localdomain4
+::1          localhost localhost.localdomain localhost6 localhost6.localdomain6
+127.0.0.1    {{ ansible_facts['nodename'] }} {{ ansible_facts['hostname'] }}
+{% for host in network_data %}
+{% if host.lname != inventory_hostname %}
+{{ host.ipv4 }}     {{ host.lname }} {{ host.sname }}
+{% endif %}
+{% endfor %}
+10.0.0.4    fhost1.contoso.com fhost1
+10.0.0.4    fhost2.contoso.com fhost2
+10.0.0.4    fhost3.contoso.com fhost3
+10.0.0.4    fhost4.contoso.com fhost4
+10.0.0.4    fhost5.contoso.com fhost5
+10.0.0.4    fhost6.contoso.com fhost6
+10.0.0.4    fhost7.contoso.com fhost7</pre>
+<p>Save the work and exit code.</p>
+<p>Test and execute scripts lab7_script1.yml and lab7_script2.yml</p>
+<p><code>ansible-playbook lab7_script1.yml --syntax-check<br />
+ansible-playbook lab7_script1.yml<br />
+ansible-playbook lab7_script2.yml --syntax-check<br />
+ansible-playbook lab7_script2.yml</code></p>
+<h1>Deploying Roles with Ansible Galaxy</h1>
+<p align="center"><iframe src="https://www.youtube.com/embed/HtAKytJsNXE?wmode=opaque" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen="" width="1024" height="576" frameborder="0"></iframe></p>
+<p>Sign in as devops and go to the ansible_working directory.</p>
+<p><code>ansible-config dump | grep roles<br />
+mkdir ~/.ansible/roles<br />
+cd ~/.ansible/roles<br />
+ansible-galaxy list<br />
+ansible-galaxy init devops.plex<br />
+ansible-galaxy list<br />
+tree ~/.ansible/roles<br />
+ansible-galaxy search docker<br />
+ansible-galaxy install geerlingguy.docker<br />
+ansible-galaxy install geerlingguy.pip</code></p>
+<p>Create lab7_script4.yml playbook.</p>
+<p><code>cd ~/ansible_working<br />
+code lab7_script4.yml</code></p>
+<pre>---
+- name: install docker and python tools to manage docker using ansible
+  hosts: rhs2.contoso.com
+
+  vars:
+    pip_install_packages:
+      - name: docker
+
+  roles:
+    - role: geerlingguy.pip
+    - role: geerlingguy.docker
+...</pre>
+<p>Test and execute scripts lab7_script4.yml</p>
+<p><code>ansible-playbook lab7_script4.yml --syntax-check<br />
+ansible-playbook lab7_script4.yml</code></p>
+<h1>Working with Collections</h1>
+<p><code>ansible-config dump | grep collections<br />
+ansible-galaxy collection install crivetimihai.development</code></p>
+<p>Create lab7_script5.yml playbook.</p>
+<p><code>cd ~/ansible_working<br />
+code lab7_script5.yml</code></p>
+<pre>---
+- name: setup a development environment
+  hosts: rhs2.contoso.com
+  
+  pre_tasks:
+    - name: Pretask 1
+      debug:
+        msg: 'This is the first pretask.'
+
+    - name: Pretask 2
+      debug:
+        msg: 'This is the second pretask.'
+
+  roles:
+    - role: crivetimihai.development.vscode
+
+  post_tasks:
+    - name: Post Task 1
+      debug:
+        msg: 'This is the first post task.'
+
+    - name: Post Task 2
+      debug:
+        msg: 'This is the second post task.'
+...</pre>
+<p>Test and execute scripts lab7_script5.yml</p>
+<p><code>ansible-playbook lab7_script5.yml --syntax-check<br />
+ansible-playbook lab7_script5.yml</code></p>
+<p>Here are some roles provided by Red Hat.</p>
+<p><code>sudo yum install rhel-system-roles<br />
+ansible-galaxy list</code></p>
+</body>
+</html>

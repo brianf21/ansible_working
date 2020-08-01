@@ -1,0 +1,16 @@
+# Encrypting password from variable
+---
+- name: Create our users
+  hosts: rhs2.contoso.com
+
+  vars:
+    username: fred
+    password: bedrock
+
+  tasks:
+    - name: Create users
+      user:
+        name: "{{ username }}"
+        password: "{{ password | password_hash('sha512') }}"
+        state: present
+...

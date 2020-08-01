@@ -1,0 +1,20 @@
+# Displaying facts from Linux and Windows machine in two plays
+---
+- name: Display some basic facts for linux hosts
+  hosts: linux
+  tasks:
+    - name: Show some properties of {{ inventory_hostname }}
+      debug:
+        msg: >
+          My FQDN is {{ ansible_facts['nodename'] }}
+          and my default IP address is {{ ansible_facts['default_ipv4']['address'] }}
+
+- name: Display some basic facts for Windows hosts
+  hosts: windows
+  tasks:
+    - name: show some properties of {{ inventory_hostname }}
+      debug:
+        msg: >
+          My FQDN is {{ ansible_facts['fqdn'] }}
+          and my default IP address is {{ ansible_facts['ip_addresses'] }}
+...

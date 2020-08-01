@@ -1,0 +1,7 @@
+---
+packages:
+  - httpd
+  - php
+  - mod_ssl
+  - mod_php
+...

@@ -1,0 +1,13 @@
+# Storing variable in vault file
+---
+- name: Create our users
+  hosts: rhs2.contoso.com
+
+  tasks:
+
+    - name: Create users
+      user:
+        name: "{{ username }}"
+        password: "{{ password | password_hash('sha512') }}"
+        state: present
+...

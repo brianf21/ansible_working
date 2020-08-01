@@ -1,0 +1,12 @@
+---
+- name: install docker and python tools to manage docker using ansible
+  hosts: rhs2.contoso.com
+
+  vars:
+    pip_install_packages:
+      - name: docker
+
+  roles:
+    - role: geerlingguy.pip
+    - role: geerlingguy.docker
+...

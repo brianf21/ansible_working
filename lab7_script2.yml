@@ -1,0 +1,13 @@
+
+
+---
+- name: Update all /etc/hosts
+  hosts: rhs1.contoso.com,rhs2.contoso.com
+  vars_files:
+    lab7_script3.yml
+  tasks:
+    - name: Create an /etc/hosts
+      template:
+        dest: /etc/hosts.tmp
+        src: templates/hosts1.j2
+...

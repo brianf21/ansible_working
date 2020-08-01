@@ -1,0 +1,9 @@
+---
+- name: Messing with host patterns
+  hosts: group1,!fhost1.contoso.com
+
+  tasks:
+    - name: Print out inventory hostname
+      debug:
+        msg: "{{ inventory_hostname }}"
+...

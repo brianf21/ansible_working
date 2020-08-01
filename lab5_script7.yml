@@ -1,0 +1,8 @@
+# Module file
+# Delete a file
+---
+- name: Be gone with you
+  file:
+    dest: /tmp/copy_me.txt
+    state: absent
+...

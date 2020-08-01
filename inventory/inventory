@@ -1,0 +1,36 @@
+rhs1.contoso.com
+rhs2.contoso.com
+dc.contoso.com
+ms.contoso.com
+10.0.0.2 ansible_host=dc.contoso.com
+10.0.0.3 ansible_host=ms.contoso.com
+10.0.0.4
+10.0.0.5
+
+[windows]
+dc.contoso.com
+ms.contoso.com
+10.0.0.2
+10.0.0.3
+
+[linux]
+rhs1.contoso.com
+rhs2.contoso.com
+
+[memberservers:children]
+windows
+linux
+
+[group1]
+fhost1.contoso.com
+fhost2.contoso.com
+fhost3.contoso.com
+fhost4.contoso.com
+fhost5.contoso.com
+
+[group2]
+fhost3.contoso.com
+fhost4.contoso.com
+fhost5.contoso.com
+fhost6.contoso.com
+fhost7.contoso.com

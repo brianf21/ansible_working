@@ -1,0 +1,15 @@
+---
+- name: Remove software for lab
+  hosts: rhs1.contoso.com,rhs2.contoso.com
+
+  tasks:
+
+    - name: Remove software
+      yum:
+        name:
+          - httpd
+          - mariadb-server
+          - php
+          - php-mysqlnd
+        state: absent
+...

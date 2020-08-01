@@ -1,0 +1,105 @@
+# Modules: copy and file
+# First Play: copy file from control host and prevent overwriting file
+# Second Play: copy from content (Using a pipe)
+# Third Play: copy from content (Using list)
+---
+- name: First Play
+  hosts: rhs2.contoso.com
+
+  tasks:
+    - name: First Task
+      copy:
+        src: files/copy_me.txt
+        dest: /tmp
+        force: no
+
+    - name: Second Task
+      file:
+        path: /tmp/copy_me.txt
+        owner: student
+        group: student
+        mode: 0660
+        state: touch
+
+    - name: Third Task
+      command: ls -l /tmp
+      register: ls
+
+    - name: Fourth Task
+      debug: var=ls.stdout_lines
+
+    - name: Fifth Task
+      command: cat /tmp/copy_me.txt
+      register: cat
+
+    - name: Sixth Task
+      debug: var=cat.stdout_lines
+
+- name: Second Play
+  hosts: rhs2.contoso.com
+
+  tasks:
+    - name: First Task
+      copy:
+        content: |
+          This is the first line
+          This is the second line
+          Here is the last line
+        dest: /tmp/copy_me_2.txt
+
+    - name: Second Task
+      file:
+        path: /tmp/copy_me_2.txt
+        owner: student
+        group: student
+        mode: 0660
+        state: touch
+
+    - name: Third Task
+      command: ls -l /tmp
+      register: ls
+
+    - name: Fourth Task
+      debug: var=ls.stdout_lines
+
+    - name: Fifth Task
+      command: cat /tmp/copy_me_2.txt
+      register: cat
+
+    - name: Sixth Task
+      debug: var=cat.stdout_lines
+
+- name: Third Play
+  hosts: rhs2.contoso.com
+
+  tasks:
+    - name: First Task
+      copy:
+        content:
+          - This is the first line
+          - This is the second line
+          - Here is the last line
+        dest: /tmp/copy_me_3.txt
+
+    - name: Second Task
+      file:
+        path: /tmp/copy_me_3.txt
+        owner: student
+        group: student
+        mode: 0660
+        state: touch
+
+    - name: Third Task
+      command: ls -l /tmp
+      register: ls
+
+    - name: Fourth Task
+      debug: var=ls.stdout_lines
+
+    - name: Fifth Task
+      command: cat /tmp/copy_me_3.txt
+      register: cat
+
+    - name: Sixth Task
+      debug: var=cat.stdout_lines
+...

@@ -1,0 +1,27 @@
+# Module: replace
+# This will edit a file
+---
+- name: First Play
+  hosts: rhs2.contoso.com
+
+  tasks:
+    - name: First Task
+      command: cat /tmp/copy_me.txt
+      register: cat
+
+    - name: Second Task
+      debug: var=cat.stdout_lines
+
+    - name: Third Task
+      replace:
+        path: /tmp/copy_me.txt
+        regexp: 'original'
+        replace: 'changed'
+
+    - name: Fourth Task
+      command: cat /tmp/copy_me.txt
+      register: cat
+
+    - name: Fifth Task
+      debug: var=cat.stdout_lines
+...

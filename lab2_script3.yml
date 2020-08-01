@@ -1,0 +1,27 @@
+# Playbook with multiple tasks for Windows machine
+---
+- name: Create Domain User
+  hosts: dc.contoso.com
+  tasks:
+          - name: Ensure HR Groups is Present
+            win_domain_group:
+                    name: HR
+                    state: present
+                    scope: global
+                    category: security
+
+          - name: Ensure Bob is present
+            win_domain_user:
+                    name: bsmith
+                    upn: bsmith@contoso.com
+                    firstname: Bob
+                    surname: Smith
+                    password: Pa11word
+                    state: present
+                    groups:
+                            - HR
+                            - Domain Users
+                    attributes:
+                            proxyAddresses: SMTP:bsmith@contoso.com
+                    email: bob@contoso.com
+...

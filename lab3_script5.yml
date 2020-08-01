@@ -1,0 +1,13 @@
+# Turning off facts gathering
+---
+- name: Display some basic facts
+  hosts: 
+    - rhs2.contoso.com
+  gather_facts: false
+  tasks:
+    - name: Show some properties of {{ inventory_hostname }}
+      debug:
+        msg: >
+          My FQDN is {{ ansible_facts['fqdn'] }}
+          and my default IP address is {{ ansible_facts['default_ipv4']['address'] }}
+...

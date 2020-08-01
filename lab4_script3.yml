@@ -1,0 +1,15 @@
+---
+- name: Loop With Hashes or Dictionary Example
+  hosts: rhs2.contoso.com
+  tasks:
+    - name: Users exist and are in correct group
+      user:
+        name: "{{ item.name }}"
+        state: present
+        groups: "{{ item.groups }}"
+      loop:
+      - name: jane
+        groups: postfix
+      - name: joe
+        groups: dovecot
+...

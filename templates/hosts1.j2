@@ -1,0 +1,15 @@
+127.0.0.1    localhost localhost.localdomain localhost4 localhost4.localdomain4
+::1          localhost localhost.localdomain localhost6 localhost6.localdomain6
+127.0.0.1    {{ ansible_facts['nodename'] }} {{ ansible_facts['hostname'] }}
+{% for host in network_data %}
+{% if host.lname != inventory_hostname %}
+{{ host.ipv4 }}     {{ host.lname }} {{ host.sname }}
+{% endif %}
+{% endfor %}
+10.0.0.4    fhost1.contoso.com fhost1
+10.0.0.4    fhost2.contoso.com fhost2
+10.0.0.4    fhost3.contoso.com fhost3
+10.0.0.4    fhost4.contoso.com fhost4
+10.0.0.4    fhost5.contoso.com fhost5
+10.0.0.4    fhost6.contoso.com fhost6
+10.0.0.4    fhost7.contoso.com fhost7

@@ -1,0 +1,31 @@
+# Playbook with multiple plays
+---
+- name: first play
+  hosts: rhs2.contoso.com
+  tasks:
+    - name: first task
+      yum:
+        name: httpd
+        state: present
+    - name: second task
+      service:
+        name: httpd
+        enabled: true
+    - name: third task
+      command: logger Apache installed via Ansible
+    - name: Open http in firewall
+      firewalld:
+        service: http
+        permanent: yes
+        state: enabled
+    - name: reload firewalld
+      command: firewall-cmd --reload
+- name: second play
+  hosts: ms.contoso.com
+  tasks:
+    - name: first task
+      win_feature:
+        name: Web-Server
+        include_management_tools: true
+        state: present
+...

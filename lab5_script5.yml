@@ -1,0 +1,25 @@
+# Module: lineinfile
+# Only allow wheel users to ssh
+---
+- name: Only wheel member to ssh
+  hosts: rhs2.contoso.com
+  tasks:
+    - name: Adding line to sshd_config
+      lineinfile:
+        state: present
+        dest: /etc/ssh/sshd_config
+        line: AllowGroups wheel
+
+    - name: Restart sshd
+      service:
+        name: sshd
+        state: restarted
+
+    - name: cat sshd_config
+      command: cat /etc/ssh/sshd_config
+      register: cat
+
+    - name: display output
+      debug:
+        msg: "Here is the output {{ cat.stdout_lines }}"
+...

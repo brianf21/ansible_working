@@ -1,0 +1,20 @@
+# Playbook with embedded variables
+---
+- name: Variable Example
+  hosts: rhs2.contoso.com
+  vars:
+
+    packages:
+      - nmap
+      - httpd
+      - php
+      - mod_php
+      - mod_ssl
+
+  tasks:
+
+    - name: Install Software
+      yum:
+        name: "{{ packages }}"
+        state: present
+...

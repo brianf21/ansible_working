@@ -1,0 +1,26 @@
+---
+- name: Boolean condition and register example
+  hosts: rhs2.contoso.com
+
+  tasks:
+    - name: Stop Apache
+      service:
+        name: httpd
+        state: stopped
+
+    - name: check if postfix is running
+      command: systemctl is-active postfix
+      ignore_errors: yes
+
+      register: status
+
+    - name: Start Apache based on mail services status
+      service:
+        name: httpd
+        state: started
+      when: status.rc == 0
+
+    - name: testing
+      debug:
+        msg: "{{ status.rc }}"
+...

@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+pre { color: red; }
+code { color: blue; }
+h1 { color: DarkSlateGray; }
+</style>
+</head>
+<body style="font-family: 'Lato', sans-serif;">
+<h1>Having Fun with Playbooks</h1>
+<p align="center"><iframe width="1024" height="576" src="https://www.youtube.com/embed/OSSUW0efgSE?wmode=opaque" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen=""></iframe></p>
+<p>Sign in as devops on rhs1 and change into your working directory</p>
+<p><code>cd ansible_working</code></p>
+<h1>Playbook with one task</h1>
+<p>Create the lab2_script1.yml playbook with code</p>
+<pre>---
+- name: Add a user to a linux machine
+  hosts: rhs2.contoso.com
+  vars:
+    password: Pa11word
+  tasks:
+    - name: Add uone
+      user:
+        name: uone
+        comment: User One
+        state: present
+        password: "{{ password | password_hash('sha512') }}"
+...
+</pre>
+<p>Check the file for syntax errors using the following command:</p>
+<p><code>ansible-playbook --syntax-check lab2_script1.yml</code></p>
+<p>If you don't have any issues, execute the YAML script with the following command:</p>
+<p><code>ansible-playbook lab2_script1.yml</code></p>
+<h1>Playbook with multiple tasks</h1>
+<p>Create the lab2_script2.yml playbook with code</p>
+<pre>---
+- name: Install and start Apache webserver
+  hosts: rhs2.contoso.com
+  tasks:
+    - name: httpd package is present
+      yum:
+        name: httpd
+        state: present
+    - name: Create some web content and add to index.html
+      copy:
+        src: files/index.html
+        dest: /var/www/html/index.html
+    - name: httpd is started and enabled
+      service:
+        name: httpd
+        state: started
+        enabled: true
+...</pre>
+<p>Create a folder called files with the follow command:</p>
+<p><code>mkdir files</code></p>
+<p>Create a file called files/index.html with the following content. Please note that index.html is saved in the folder called files that we just created.</p>
+<pre>&lt;html&gt;
+  &lt;head&gt;
+    &lt;title&gt;My Website&lt;/title&gt;
+  &lt;head&gt;
+  &lt;body&gt;
+    This is some web content
+  &lt;/body&gt;
+&lt;/html&gt;</pre>
+<p>Check the file for syntax errors using the following command:</p>
+<p><code>ansible-playbook --syntax-check lab2_script2.yml</code></p>
+<p>If you don't have any issues, execute the YAML script with the following command:</p>
+<p><code>ansible-playbook lab2_script2.yml</code></p>
+<p>We need to allow access to the web server through the firewall to test if it works. Do the following commands to connect to rhs2, open the firewall, disconnect, then query the web server.</p>
+<p><code>ssh rhs2.contoso.com<br />
+su -<br />
+firewall-cmd --list-all<br />
+firewall-cmd --zone public --add-service http --permanent<br />
+firewall-cmd --reload<br />
+firewall-cmd --list-all<br />
+exit<br />
+exit<br />
+curl http://rhs2.contoso.com</code></p>
+<p>If it works, reset the firewall back to the original state</p>
+<p><code>ssh rhs2.contoso.com<br />
+su -<br />
+firewall-cmd --list-all<br />
+firewall-cmd --zone public --remove-service http --permanent<br />
+firewall-cmd --reload<br />
+firewall-cmd --list-all<br />
+exit<br />
+exit</code></p>
+<h1>Playbooks with multiple tasks for Windows machine</h1>
+<p>Create the lab2_script3.yml playbook with code</p>
+<pre>---
+- name: Create Domain User
+  hosts: dc.contoso.com
+  tasks:
+    - name: Ensure HR Groups is Present
+      win_domain_group:
+        name: HR
+        state: present
+        scope: global
+        category: security
+    - name: Ensure Bob is present
+      win_domain_user:
+        name: bsmith
+        upn: bsmith@contoso.com
+        firstname: Bob
+        surname: Smith
+        password: Pa11word
+        state: present
+        groups:
+          - HR
+          - Domain Users
+        attributes:
+           proxyAddresses: SMTP:bsmith@contoso.com
+        email: bob@contoso.com
+...</pre>
+<p>Check the file for syntax errors using the following command:</p>
+<p><code>ansible-playbook --syntax-check lab2_script3.yml</code></p>
+<p>If you don't have any issues, execute the YAML script with the following command:</p>
+<p><code>ansible-playbook lab2_script3.yml</code></p>
+<p>Create the lab2_script4.yml playbook with code</p>
+<pre>---
+- name: Install Software
+  hosts: ms.contoso.com
+  tasks:
+    - name: Install NotePadPlusPlus
+      win_chocolatey:
+        name: notepadplusplus
+        architecture: x86
+        state: present
+    - name: Install Chrome
+      win_chocolatey:
+        name: googlechrome
+        state: present
+    - name: Install All Software
+      win_chocolatey:
+        name:
+          - putty.install
+          - procexp
+          - git
+        state: present
+...</pre>
+<p>Check the file for syntax errors using the following command:</p>
+<p><code>ansible-playbook --syntax-check lab2_script4.yml</code></p>
+<p>If you don't have any issues, execute the YAML script with the following command:</p>
+<p><code>ansible-playbook lab2_script4.yml</code></p>
+<h1>Playbook with multiple plays</h1>
+<p>Create the lab2_script5.yml playbook with code</p>
+<pre>---
+- name: first play
+  hosts: rhs2.contoso.com
+  tasks:
+    - name: first task
+      yum:
+        name: httpd
+        state: present
+    - name: second task
+      service:
+        name: httpd
+        enabled: true
+    - name: third task
+      command: logger Apache installed via Ansible
+- name: second play
+  hosts: ms.contoso.com
+  tasks:
+    - name: first task
+      win_feature:
+        name: Web-Server
+        include_management_tools: true
+        state: present
+...</pre>
+<p>Check the file for syntax errors using the following command:</p>
+<p><code>ansible-playbook --syntax-check lab2_script5.yml</code></p>
+<p>If you don't have any issues, execute the YAML script with the following command:</p>
+<p><code>ansible-playbook lab2_script5.yml</code></p>
+<h1>Self Lab:</h1>
+<p>Modify lab2_script2.yml script and add another task to the appropriate plays take allows http traffic through the firewall in the public zone after httpd is installed for rhs2.contoso.com. This can done using the firewalld module. Research it on <a href="https://docs.ansible.com" target=" _blank">Ansible Docs</a>.</p>
+</body>
+</html>

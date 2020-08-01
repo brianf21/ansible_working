@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+pre { color: red; }
+code { color: blue; }
+h1 { color: DarkSlateGray; }
+</style>
+</head>
+<body style="font-family: 'Lato', sans-serif;">
+<h1>Selecting Hosts with Host Patterns</h1>
+<p align="center"><iframe src="https://www.youtube.com/embed/-kMi0L6qc6o?wmode=opaque" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen="" height="576" frameborder="0" width="1024"></iframe></p>
+<p>Sign in as devops and change into the ansible_working directory</p>
+<p><code>cd ansible_working<br />
+pwd</code></p>
+<p>Edit your inventory file to add some fake hosts, ip addresses and groups with the following content:</p>
+<p><code>code inventory</code></p>
+<pre>rhs1.contoso.com
+rhs2.contoso.com
+dc.contoso.com
+ms.contoso.com
+10.0.0.2 ansible_host=dc.contoso.com
+10.0.0.3 ansible_host=ms.contoso.com
+10.0.0.4
+10.0.0.5
+
+[windows]
+dc.contoso.com
+ms.contoso.com
+10.0.0.2
+10.0.0.3
+
+[linux]
+rhs1.contoso.com
+rhs2.contoso.com
+
+[memberservers:children]
+windows
+linux
+
+[group1]
+fhost1.contoso.com
+fhost2.contoso.com
+fhost3.contoso.com
+fhost4.contoso.com
+fhost5.contoso.com
+
+[group2]
+fhost3.contoso.com
+fhost4.contoso.com
+fhost5.contoso.com
+fhost6.contoso.com
+fhost7.contoso.com</pre>
+<p>Save your work and exit code.</p>
+<p>Edit your local host file so you can resolve the hosts you've just added to your inventory file to the loopback address.</p>
+<p><code>sudo vi /etc/hosts</code></p>
+<pre>127.0.0.1   localhost localhost.localdomain localhost4 localhost4.localdomain4
+::1         localhost localhost.localdomain localhost6 localhost6.localdomain6
+127.0.0.1       rhs1.contoso.com rhs1
+::1             rhs1.contoso.com rhs1
+127.0.0.1       fhost1.contoso.com fhost1
+127.0.0.1       fhost2.contoso.com fhost2
+127.0.0.1       fhost3.contoso.com fhost3
+127.0.0.1       fhost4.contoso.com fhost4
+127.0.0.1       fhost5.contoso.com fhost5
+127.0.0.1       fhost6.contoso.com fhost6
+127.0.0.1       fhost7.contoso.com fhost7
+</pre>
+<p>Save your work and exit vi.</p>
+<p>Run the following command to accept all of the fake servers' ssh keys.</p>
+<p><code>for i in `seq 1 7`<br />
+do<br />
+ssh fhost$i.contoso.com -o StrictHostKeyChecking=accept-new -C hostname<br />
+done</code></p>
+<p>Run the following command to accept all of the servers' ssh keys for their ip addresses</p>
+<p><code>for i in `seq 4 5`; do ssh 10.0.0.$i -o StrictHostKeyChecking=accept-new -C hostname; done</code></p>
+<p>Fix kerberos so that there is a default domain by editing the following file.</p>
+<p><code>sudo vi /etc/krb5.conf</code></p>
+<pre># To opt out of the system crypto-policies configuration of krb5, remove the
+# symlink at /etc/krb5.conf.d/crypto-policies which will not be recreated.
+includedir /etc/krb5.conf.d/
+
+[logging]
+    default = FILE:/var/log/krb5libs.log
+    kdc = FILE:/var/log/krb5kdc.log
+    admin_server = FILE:/var/log/kadmind.log
+
+[libdefaults]
+    dns_lookup_realm = false
+    ticket_lifetime = 24h
+    renew_lifetime = 7d
+    forwardable = true
+    rdns = false
+    pkinit_anchors = /etc/pki/tls/certs/ca-bundle.crt
+    spake_preauth_groups = edwards25519
+#    default_realm = EXAMPLE.COM
+    default_realm = CONTOSO.COM
+    default_ccache_name = KEYRING:persistent:%{uid}
+
+[realms]
+# EXAMPLE.COM = {
+#     kdc = kerberos.example.com
+#     admin_server = kerberos.example.com
+# }
+
+[domain_realm]
+# .example.com = EXAMPLE.COM
+# example.com = EXAMPLE.COM
+.contoso.com = CONTOSO.COM
+contoso.com = CONTOSO.COM
+</pre>
+<p>Create a new playbook called lab6_script1.yml with the following content.</p>
+<p><code>code lab6_script1.yml</code></p>
+<pre>---
+- name: Messing with host patterns
+  hosts: '*'
+
+  tasks:
+    - name: Print out inventory hostname
+      debug:
+        msg: "{{ inventory_hostname }}"
+...</pre>
+<p>Save your work, exit code, test and run your script.</p>
+<p><code>ansible-playbook --syntax-check lab6_script1.yml<br />
+ansible-playbook lab6_script1.yml</code></p>
+<p>Create a new playbook called lab6_script2.yml with the following content.</p>
+<p><code>code lab6_script2.yml</code></p>
+<pre>---
+- name: Messing with host patterns
+  hosts: '10.0.0.*'
+
+  tasks:
+    - name: Print out inventory hostname
+      debug:
+        msg: "{{ inventory_hostname }}"
+...</pre>
+<p>Save your work, exit code, test and run your script.</p>
+<p><code>ansible-playbook --syntax-check lab6_script2.yml<br />
+ansible-playbook lab6_script2.yml</code></p>
+<p>Create a new playbook called lab6_script3.yml with the following content.</p>
+<p><code>code lab6_script3.yml</code></p>
+<pre>---
+- name: Messing with host patterns
+  hosts: 'fhost*'
+
+  tasks:
+    - name: Print out inventory hostname
+      debug:
+        msg: "{{ inventory_hostname }}"
+...</pre>
+<p>Save your work, exit code, test and run your script.</p>
+<p><code>ansible-playbook --syntax-check lab6_script3.yml<br />
+ansible-playbook lab6_script3.yml</code></p>
+<p>Create a new playbook called lab6_script4.yml with the following content.</p>
+<p><code>code lab6_script4.yml</code></p>
+<pre>---
+- name: Messing with host patterns
+  hosts: group1,group2
+
+  tasks:
+    - name: Print out inventory hostname
+      debug:
+        msg: "{{ inventory_hostname }}"
+...</pre>
+<p>Save your work, exit code, test and run your script.</p>
+<p><code>ansible-playbook --syntax-check lab6_script4.yml<br />
+ansible-playbook lab6_script4.yml</code></p>
+<p>Create a new playbook called lab6_script5.yml with the following content.</p>
+<p><code>code lab6_script5.yml</code></p>
+<pre>---
+- name: Messing with host patterns
+  hosts: group1,&amp;group2
+
+  tasks:
+    - name: Print out inventory hostname
+      debug:
+        msg: "{{ inventory_hostname }}"
+...</pre>
+<p>Save your work, exit code, test and run your script.</p>
+<p><code>ansible-playbook --syntax-check lab6_script5.yml<br />
+ansible-playbook lab6_script5.yml</code></p>
+<p>Create a new playbook called lab6_script6.yml with the following content.</p>
+<p><code>code lab6_script6.yml</code></p>
+<pre>---
+- name: Messing with host patterns
+  hosts: group1,!fhost1.contoso.com
+
+  tasks:
+    - name: Print out inventory hostname
+      debug:
+        msg: "{{ inventory_hostname }}"
+...</pre>
+<p>Save your work, exit code, test and run your script.</p>
+<p><code>ansible-playbook --syntax-check lab6_script6.yml<br />
+ansible-playbook lab6_script6.yml</code></p>
+<p>Create a new playbook called lab6_script7.yml with the following content.</p>
+<p><code>code lab6_script7.yml</code></p>
+<pre>---
+- name: Messing with host patterns
+  hosts: group1,!group2
+
+  tasks:
+    - name: Print out inventory hostname
+      debug:
+        msg: "{{ inventory_hostname }}"
+...</pre>
+<p>Save your work, exit code, test and run your script.</p>
+<p><code>ansible-playbook --syntax-check lab6_script7.yml<br />
+ansible-playbook lab6_script7.yml</code></p>
+<h2>Managing Dynamic Inventories</h2>
+<p align="center"><iframe src="https://www.youtube.com/embed/FI095xdtvjo?wmode=opaque" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen="" height="576" frameborder="0" width="1024"></iframe></p>
+<p>Sign in as devops and change into the ansible_working directory.</p>
+<p>For this next lab, we need to install python-ldap.</p>
+<p>First install the prerequisites.</p>
+<p><code>sudo yum -y install python36-devel openldap-devel</code></p>
+<p>Now the python-ldap library.</p>
+<p><code>sudo python3 -m pip install python-ldap</code></p>
+<p>Create a ansible inventory plugin directory</p>
+<p><code>mkdir -p ~/.ansible/plugins/inventory</code></p>
+<p>Change to the ansible inventory plugin directory and download the ldap_inventory plugin.</p>
+<p><code>cd ~/.ansible/plugins/inventory<br />
+wget https://raw.githubusercontent.com/joshinryz/ansible_ldap_inventory/master/plugins/inventory/ldap_inventory.py</code></p>
+<p>Go back to your ansible_working directory and rename the static inventory file.</p>
+<p><code>cd ~/ansible_working<br />
+mv inventory inventory.backup</code></p>
+<p>Create an inventory directory in ansible_working.</p>
+<p><code>mkdir inventory</code></p>
+<p>Move and rename the static inventory file to the new directory.</p>
+<p><code>mv inventory.backup inventory/inventory</code></p>
+<p>Create a yaml script with the required information that will run the ldap_inventory plugin to generate a inventory list from the domain controller in json format.</p>
+<p><code>code inventory/ldap_inventory.yaml</code></p>
+<pre>---
+plugin: ldap_inventory
+domain: 'contoso.com'
+username: administrator@contoso.com
+password: "Pa11word"
+search_ou: "DC=contoso,DC=com"</pre>
+<p>Modify the ansible configuration file to point to the new directory.</p>
+<p><code>code ansible.cfg</code></p>
+<pre>[defaults]
+inventory = inventory/
+remote_user = devops
+ask_pass = false
+
+[privilege_escalation]
+become = true
+become_method = sudo
+become_user = root
+become_ask_pass = false</pre>
+<p>Test to verify your setup can access the new plugin.</p>
+<p><code>ansible-doc -t inventory -l<br />
+ansible-doc -t inventory ldap_inventory</code></p>
+<p>Modify your OU structure on the domain control.</p>
+<p>Test to see if you can pull inventory list from both the static inventory file and LDAP.</p>
+<p><code>ansible all --list-host<br />
+ansible-inventory --list</code></p>
+<h1>Configuring Parallelism</h1>
+<p align="center"><iframe src="https://www.youtube.com/embed/-_JHi5oT4uU?wmode=opaque" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen="" height="576" frameborder="0" width="1024"></iframe></p>
+<p>Sign in as devops and change into the ansible_working directory.</p>
+<p>Create the following two playbooks.</p>
+<p><code>code lab6_script8.yml lab6_script9.yml</code></p>
+<p>lab6_script8.yml</p>
+<pre>---
+- name: Cleanup server before running play
+  import_playbook: lab6_script9.yml
+
+- name: Setup web/database server
+  hosts: rhs1.contoso.com,rhs2.contoso.com
+
+  tasks:
+
+    - name: Install or update required software
+      yum:
+        name:
+          - firewalld
+          - httpd
+          - mariadb-server
+          - php
+          - php-mysqlnd
+        state: latest
+      notify: 
+        - restart firewalld
+        - restart httpd
+        - restart mariadb
+
+    - name: firewalld enabled and running
+      service:
+        name: firewalld
+        enabled: true
+        state: started
+
+    - name: firewalld permits http service
+      firewalld:
+        zone: public
+        service: http
+        state: enabled
+        permanent: true
+        immediate: true
+
+    - name: httpd enabled and running
+      service:
+        name: httpd
+        enabled: true
+        state: started
+
+    - name: mariadb enabled and running
+      service:
+        name: mariadb
+        enabled: true
+        state: started
+
+    - name: Push test index.html to server
+      copy:
+        src: files/index.html
+        dest: /var/www/html/
+
+  handlers:
+
+    - name: restart firewalld
+      service:
+        name: firewalld
+        state: restarted
+
+    - name: restart httpd
+      service:
+        name: httpd
+        state: restarted
+
+    - name: restart mariadb
+      service:
+        name: mariadb
+        state: restarted
+...</pre>
+<p>lab6_script9.yml</p>
+<pre>---
+- name: Remove software for lab
+  hosts: rhs1.contoso.com,rhs2.contoso.com
+
+  tasks:
+
+    - name: Remove software
+      yum:
+        name:
+          - httpd
+          - mariadb-server
+          - php
+          - php-mysqlnd
+        state: absent
+...</pre>
+<p>Save your work, exit code.</p>
+<p>Edit your ansible.cfg file and add the forks line to the default section.</p>
+<p><code>code ansible.cfg</code></p>
+<pre>[defaults]
+inventory = inventory/
+remote_user = devops
+ask_pass = false
+forks=1
+
+[privilege_escalation]
+become = true
+become_method = sudo
+become_user = root
+become_ask_pass = false</pre>
+<p>Test, time, and execute script lab6_script8.yml and lab6_script9.yml. Note: lab6_script8.yml will automatically execute lab6_script9.yml.</p>
+<p><code>ansible-playbook --syntax-check lab6_script8.yml<br />
+ansible-playbook --syntax-check lab6_script9.yml<br />
+time ansible-playbook lab6_script8.yml</code></p>
+<p>Edit your ansible.cfg and change forks to 10, then execute and time lab6_script8.yml again. Note the time for each executions. When you are done with this lab, remove the forks line from ansible.cfg.</p>
+<h1>Including and Importing Files</h1>
+<p align="center"><iframe width="1024" height="576" src="https://www.youtube.com/embed/FY7_Cv1iryI?wmode=opaque" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen=""></iframe></p>
+<p>Sign in as devops and change into the ansible_working directory.</p>
+<p>Create the following two playbooks.</p>
+<p><code>code lab6_script10.yml lab6_script11.yml</code></p>
+<p>lab6_script10.yml</p>
+<pre>---
+- name: Cleanup server before running play
+  import_playbook: lab6_script9.yml
+
+- name: Setup web/database server
+  hosts: rhs1.contoso.com,rhs2.contoso.com
+
+  tasks:
+
+    - name: Install or update required software
+      yum:
+        name:
+          - firewalld
+          - httpd
+          - mariadb-server
+          - php
+          - php-mysqlnd
+        state: latest
+      notify: 
+        - restart firewalld
+        - restart httpd
+        - restart mariadb
+      tags:
+        - fw
+        - web
+        - db
+
+    - name: firewalld enabled and running
+      service:
+        name: firewalld
+        enabled: true
+        state: started
+      tags: fw
+
+    - name: firewalld permits http service
+      firewalld:
+        zone: public
+        service: http
+        state: enabled
+        permanent: true
+        immediate: true
+      tags: fw
+
+    - name: httpd enabled and running
+      service:
+        name: httpd
+        enabled: true
+        state: started
+      tags: web
+
+    - name: mariadb enabled and running
+      service:
+        name: mariadb
+        enabled: true
+        state: started
+      tags: db
+
+    - name: Push test index.html to server
+      copy:
+        src: files/index.html
+        dest: /var/www/html/
+      tags: web
+
+    - include_tasks: lab6_script11.yml
+
+  handlers:
+
+    - name: restart firewalld
+      service:
+        name: firewalld
+        state: restarted
+
+    - name: restart httpd
+      service:
+        name: httpd
+        state: restarted
+
+    - name: restart mariadb
+      service:
+        name: mariadb
+        state: restarted
+...</pre>
+<p>lab6_script11.yml</p>
+<pre>- action: uri url=http://{{ inventory_hostname }} return_content=yes
+  register: webpage
+
+- name: Show the web content
+  debug:
+    msg: "{{ webpage.content }}"
+
+- fail:
+    msg: 'Cannot get to the page'
+  when: "'This is some web content' not in webpage.content"</pre>
+<p>Check your scripts for typos.</p>
+<p><code>ansible-playbook --syntax-check lab6_script10.yml<br />
+ansible-playbook --syntax-check lab6_script11.yml</code></p>
+<p>Run the following commands to see the results.</p>
+<p><code>ansible-playbook lab6_script10.yml<br />
+ansible-playbook lab6_script10.yml --list-tasks<br />
+ansible-playbook lab6_script10.yml --start-at-task "Push test index.html to server"<br />
+ansible-playbook lab6_script10.yml --tags db<br />
+ansible-playbook lab6_script10.yml --tags db,fw</code></p>
+</body>
+</html>

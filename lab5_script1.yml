@@ -1,0 +1,22 @@
+# Module file
+# touch file and set permissions, user owner, and group owner
+---
+- name: First Play
+  hosts: rhs2.contoso.com
+
+  tasks:
+    - name: First Task
+      file:
+        path: /tmp/testfile
+        owner: student
+        group: student
+        mode: 0755
+        state: touch
+
+    - name: Second Task
+      command: ls -l /tmp
+      register: ls
+
+    - name: Third Task
+      debug: var=ls.stdout_lines
+...

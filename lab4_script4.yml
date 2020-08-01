@@ -1,0 +1,27 @@
+---
+- name: Loop With Register Var Example
+  hosts: rhs2.contoso.com
+  tasks:
+    - name: Looping Services Status
+      command: systemctl is-active "{{ item }}"
+      ignore_errors: yes
+      
+      loop:
+        - postfix
+        - dovecot
+      register: systemctl
+
+    - name: show systemctl results
+      debug:
+        msg: My output "{{ systemctl }}"
+
+    - name: show var stdout
+      debug:
+        var: item
+      loop: "{{ systemctl.results }}"
+
+    - name: show msg stdout
+      debug:
+        msg: "{{ item.stdout }}"
+      loop: "{{ systemctl.results }}"
+...

@@ -1,0 +1,34 @@
+# Modules: synchronize
+# sync's file from control host
+---
+- name: First Play
+  hosts: rhs2.contoso.com
+
+  tasks:
+    - name: First Task
+      synchronize:
+        src: files/copy_me.txt
+        dest: /tmp
+
+    - name: Second Task
+      file:
+        path: /tmp/copy_me.txt
+        owner: student
+        group: student
+        mode: 0660
+        state: touch
+
+    - name: Third Task
+      command: ls -l /tmp
+      register: ls
+
+    - name: Fourth Task
+      debug: var=ls.stdout_lines
+
+    - name: Fifth Task
+      command: cat /tmp/copy_me.txt
+      register: cat
+
+    - name: Sixth Task
+      debug: var=cat.stdout_lines
+...

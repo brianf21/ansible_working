@@ -1,0 +1,28 @@
+# Modules fetch authorized_keys
+# Sign in to rhs2 as student using devops' key
+---
+- name: get devops' pub key from reference machine
+  hosts: rhs1.contoso.com
+
+  vars:
+    user: devops
+
+  tasks:
+    - name: grab the key and copy to control host
+      fetch:
+        src: "/home/{{ user }}/.ssh/id_rsa.pub"
+        dest: "files/keys/{{ user }}.pub"
+
+- name: copy devops' pub key to student account
+  hosts: rhs2.contoso.com
+
+  vars:
+    user: student
+
+  tasks:
+    - name: copying the key
+      authorized_key:
+        manage_dir: true
+        user: "{{ user }}"
+        key: "{{ lookup('file', 'files/keys/devops.pub/rhs1.contoso.com/home/devops/.ssh/id_rsa.pub') }}"
+...

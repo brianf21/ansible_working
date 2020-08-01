@@ -1,0 +1,13 @@
+# Playbook with variables from group_vars/linux and host_vars/rhs2.contoso.com
+# Demo of variable precedence
+---
+- name: Variable Example
+  hosts: linux
+
+  tasks:
+
+    - name: Install Software
+      yum:
+        name: "{{ packages }}"
+        state: present
+...

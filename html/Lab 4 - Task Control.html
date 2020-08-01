@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+pre { color: red; }
+code { color: blue; }
+h1 { color: DarkSlateGray; }
+</style>
+</head>
+<body style="font-family: 'Lato', sans-serif;">
+<p align="center"><iframe width="1024" height="576" src="https://www.youtube.com/embed/B6mdeyOSGZI?wmode=opaque" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen=""></iframe></p>
+<p>Sign in as devops and change into the ansible_working directory</p>
+<p><code>cd ansible_working<br />
+pwd</code></p>
+<h1>Simple Loop</h1>
+<p>Create playbook lab4_script1.yml with the following content:</p>
+<p><code>code lab4_script1.yml</code></p>
+<pre>---
+- name: Simple Loop Example
+  hosts: rhs2.contoso.com
+
+  tasks:
+    - name: Install Mail Packages
+      yum:
+        name: "{{ item }}"
+        state: latest
+
+      loop:
+        - postfix
+        - dovecot
+...</pre>
+<p>Test and execute playbook lab4_script1.yml</p>
+<p><code>ansible-playbook lab4_script1.yml --syntax-check<br />
+ansible-playbook lab5_script1.yml</code></p>
+<h1>Simple Loop With Variables</h1>
+<p>Create playbook lab4_script2.yml with the following content:</p>
+<p><code>code lab4_script2.yml</code></p>
+<pre>---
+- name: Loops With Variable Example
+  hosts: rhs2.contoso.com
+  vars:
+    mail_services:
+      - postfix
+      - dovecot
+  tasks:
+    - name: Postfix and Dovecot are running
+      service:
+        name: "{{ item }}"
+        state: started
+      loop: "{{ mail_services }}"
+...</pre>
+<p>Test and execute playbook lab4_script2.yml</p>
+<p><code>ansible-playbook lab4_script2.yml --syntax-check<br />
+ansible-playbook lab5_script2.yml</code></p>
+<h1>Loops over a List of Hashes or Dictionaries</h1>
+<p>Create playbook lab4_script3.yml with the following content:</p>
+<p><code>code lab4_script3.yml</code></p>
+<pre>---
+- name: Loop With Hashes or Dictionary Example
+  hosts: rhs2.contoso.com
+  tasks:
+    - name: Users exist and are in correct group
+      user:
+        name: "{{ item.name }}"
+        state: present
+        groups: "{{ item.groups }}"
+      loop:
+      - name: jane
+        groups: postfix
+      - name: joe
+        groups: dovecot
+...</pre>
+<p>Test and execute playbook lab4_script3.yml</p>
+<p><code>ansible-playbook lab4_script3.yml --syntax-check<br />
+ansible-playbook lab5_script3.yml</code></p>
+<h1>Using Register Variables with Loops</h1>
+<p>Create playbook lab4_script4.yml with the following content:</p>
+<p><code>code lab4_script4.yml</code></p>
+<pre>---
+- name: Loop With Register Var Example
+  hosts: rhs2.contoso.com
+  tasks:
+    - name: Looping Services Status
+      command: systemctl is-active "{{ item }}"
+      ignore_errors: yes
+      
+      loop:
+        - postfix
+        - dovecot
+      register: systemctl
+
+    - name: show systemctl results
+      debug:
+        msg: My output "{{ systemctl }}"
+
+    - name: show var stdout
+      debug:
+        var: item
+      loop: "{{ systemctl.results }}"
+
+    - name: show msg stdout
+      debug:
+        msg: "{{ item.stdout }}"
+      loop: "{{ systemctl.results }}"
+...</pre>
+<p>Test and execute playbook lab4_script4.yml</p>
+<p><code>ansible-playbook lab4_script4.yml --syntax-check<br />
+ansible-playbook lab5_script4.yml</code></p>
+<h1>Running Tasks Conditionally</h1>
+<p>Create playbook lab4_script5.yml with the following content:</p>
+<p><code>code lab4_script5.yml</code></p>
+<pre>---
+- name: Boolean condition and register example
+  hosts: rhs2.contoso.com
+
+  tasks:
+    - name: Stop Apache
+      service:
+        name: httpd
+        state: stopped
+
+    - name: check if postfix is running
+      command: systemctl is-active postfix
+      ignore_errors: yes
+
+      register: status
+
+    - name: Start Apache based on mail services status
+      service:
+        name: httpd
+        state: started
+      when: status.rc == 0
+
+    - name: testing
+      debug:
+        msg: "{{ status.rc }}"
+...</pre>
+<p>Test and execute playbook lab4_script5.yml</p>
+<p><code>ansible-playbook lab4_script5.yml --syntax-check<br />
+ansible-playbook lab5_script5.yml</code></p>
+<h1>Self Lab</h1>
+<p>Create a playbook called lab4_script6.yml. This playbook should create four users on rhs1.contoso.com: ufive (User Five), usix (User Six), useven (User Seven), and ueight (User Eight). The usernames and their full names should be stored as variables in the playbook as a loop and the password should be stored in an encrypted file. Use Pa11word as the password and hash it using sha512. Create any missing directories or files that are needed to complete this lab. You might have to create another playbook to delete the user accounts to test your script. Use the force: yes parameter to also delete their home directories.</p>
+</body>
+</html>

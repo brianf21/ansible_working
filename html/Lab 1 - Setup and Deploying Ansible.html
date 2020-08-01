@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+pre { color: red; }
+code { color: blue; }
+h1 { color: DarkSlateGray; }
+h2 { color: DarkSlateGray; }
+</style>
+</head>
+<body style="font-family: 'Lato', sans-serif;">
+<h1>Lab Setup</h1>
+<p align="center"><iframe width="1024" height="576" src="https://www.youtube.com/embed/A68dWsu9JCc?wmode=opaque" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen=""></iframe></p>
+<h2>DC Setup</h2>
+<p><code> New-NetIPAddress -IPAddress 10.0.0.2 -PrefixLength 24 -DefaultGateway 10.0.0.1 -InterfaceAlias Ethernet</code><br /><code> Set-DnsClientServerAddress -ServerAddresses 8.8.8.8,8.8.4.4 -InterfaceAlias Ethernet</code><br /><code> Rename-Computer -NewName dc -Restart</code></p>
+<p><em>The DC will now reboot</em></p>
+<p><code> Install-WindowsFeature -Name ad-domain-services -IncludeManagementTools -Restart</code><br /><code> $pwd = ConvertTo-SecureString Pa11word -AsPlainText -Force</code><br /><code> Install-ADDSForest -DomainName contoso.com -SafeModeAdministratorPassword $pwd -Force</code><br /><code></code></p>
+<p><em>The DC will reboot again</em></p>
+<p><code>Add-DnsServerPrimaryZone -NetworkId 10.0.0/24 -ReplicationScope Domain</code><br /><code> Register-DnsClient</code><br /><code> Invoke-RestMethod https://raw.githubusercontent.com/ansible/ansible/devel/examples/scripts/ConfigureRemotingForAnsible.ps1 | Invoke-Expression</code></p>
+<h2>MS Setup</h2>
+<p><code> New-NetIPAddress -IPAddress 10.0.0.3 -PrefixLength 24 -DefaultGateway 10.0.0.1 -InterfaceAlias Ethernet</code><br /><code> Set-DnsClientServerAddress -ServerAddresses 10.0.0.2 -InterfaceAlias Ethernet</code><br /><code> Add-Computer -DomainCredential (Get-Credential contoso\administrator) -DomainName contoso.com -NewName ms -Restart</code></p>
+<p><em>MS will now reboot</em></p>
+<p><code> Invoke-RestMethod https://raw.githubusercontent.com/ansible/ansible/devel/examples/scripts/ConfigureRemotingForAnsible.ps1 | Invoke-Expression</code></p>
+<h2>RHS1 Setup</h2>
+<p><code>su -</code><br /><code>nmcli con add con-name ens5 ip4 10.0.0.4/24 gw4 10.0.0.1 ifname ens5 type ethernet ipv4.dns 10.0.0.2 ipv4.method manual autoconnect yes</code><br /><code> hostnamectl set-hostname rhs1.contoso.com</code><br /><code> echo -e "127.0.0.1\trhs1.contoso.com rhs1" &gt;&gt; /etc/hosts</code><br /><code> echo -e "::1\t\trhs1.contoso.com rhs1" &gt;&gt; /etc/hosts</code><br /><code> reboot</code></p>
+<p><em>RHS1 Will Reboot</em></p>
+<p><code>su -</code><br /><code>yum -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm</code><br /><code> yum -y install ansible krb5-devel python36-devel</code><br /><code> yum -y groupinstall "Development Tools"</code><br /><code> python3 -m pip install pywinrm[kerberos]</code><br /><code> useradd -G wheel devops</code><br /><code> echo Pa11word | passwd --stdin devops</code><br /><code> sed -ie 's/# %wheel/%wheel/g' /etc/sudoers</code><br /><code> yum -y install realmd sssd oddjob oddjob-mkhomedir adcli samba-common samba-common-tools krb5-workstation authselect-compat</code><br /><code> realm discover contoso.com</code><br /><code> realm join contoso.com -U Administrator</code><br /><code> realm list</code><br /><code> authselect select sssd</code><br /><code> authselect select sssd with-mkhomedir</code><br /><code>vi /etc/sssd/sssd.conf</code><br /><code> krb5_lifetime = 1h</code><br /><code> krb5_renewable_lifetime = 1d</code><br /><code> krb5_renew_interval = 60s</code><br /><code> systemctl restart sssd</code><br /><code> realm permit --all</code><br /><code> kinit administrator@CONTOSO.COM</code><br /><code> klist</code><br /><code> reboot</code></p>
+<p><em>RHS1 will reboot</em></p>
+<h2>RHS2 setup</h2>
+<p><code>su -</code><br /><code> nmcli con add con-name ens8 ip4 10.0.0.5/24 gw4 10.0.0.1 ifname ens8 type ethernet ipv4.dns 10.0.0.2 ipv4.method manual autoconnect yes</code><br /><code> hostnamectl set-hostname rhs2.contoso.com</code><br /><code> echo -e "127.0.0.1\trhs2.contoso.com rhs2" &gt;&gt; /etc/hosts</code><br /><code> echo -e "::1\t\trhs2.contoso.com rhs2" &gt;&gt; /etc/hosts</code><br /><code> reboot</code></p>
+<p><em>RHS2 will reboot</em></p>
+<p><code>su -</code><br /><code>yum -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm</code><br /><code> yum -y module install python36</code><br /><code> useradd -G wheel devops</code><br /><code> echo Pa11word | passwd --stdin devops</code><br /><code> sed -ie 's/# %wheel/%wheel/g' /etc/sudoers</code><br /><code> yum -y install realmd sssd oddjob oddjob-mkhomedir adcli samba-common samba-common-tools krb5-workstation authselect-compat</code><br /><code> realm discover contoso.com</code><br /><code> realm join contoso.com -U Administrator</code><br /><code> realm list</code><br /><code> authselect select sssd</code><br /><code> authselect select sssd with-mkhomedir</code><br /><code> vi /etc/sssd/sssd.conf</code><br /><code> krb5_lifetime = 1h</code><br /><code> krb5_renewable_lifetime = 1d</code><br /><code> krb5_renew_interval = 60s</code><br /><code> systemctl restart sssd</code><br /><code> realm permit --all</code><br /><code> kinit administrator@CONTOSO.COM</code><br /><code>klist</code><br /><code>reboot</code></p>
+<p><em>RHS2 will reboot</em></p>
+<h2>Setting Up SSH Keys</h2>
+<p><em>On RHS1, sign in as devops</em></p>
+<p><code>ssh-keygen</code><br /><code>ssh-copy-id devops@rhs1.contoso.com</code><br /><code>ssh-copy-id devops@rhs2.contoso.com</code></p>
+<h2>Installing Visual Studio Code on RHS1</h2>
+<p><code>su -</code><br /><code>rpm --import https://packages.microsoft.com/keys/microsoft.asc</code><br /><code>sh -c 'echo -e "[code]\nname=Visual Studio Code\nbaseurl=https://packages.microsoft.com/yumrepos/vscode\nenabled=1\ngpgcheck=1\ngpgkey=https://packages.microsoft.com/keys/microsoft.asc" &gt; /etc/yum.repos.d/vscode.repo'</code><br /><code>yum check-update</code><br /><code>yum -y install code</code></p>
+<hr />
+<h1>Inventory and Configuration Files</h1>
+<p align="center"><iframe width="1024" height="576" src="https://www.youtube.com/embed/fRbbN-w2oqA?wmode=opaque" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen=""></iframe></p>
+<h2>Create an Inventory File</h2>
+<p>Sign in as devops on RHS1 and create two directories using the following command</p>
+<p><code>mkdir -p ansible_working/group_vars</code></p>
+<p>Using code, create a file called <em>ansible_working/inventory</em> with the following content:</p>
+<pre>rhs1.contoso.com
+rhs2.contoso.com
+dc.contoso.com
+ms.contoso.com
+
+[windows]
+dc.contoso.com
+ms.contoso.com
+
+[linux]
+rhs1.contoso.com
+rhs2.contoso.com
+
+[memberservers:children]
+windows
+linux</pre>
+<h2>Create an Ansible Configuration file</h2>
+<p>Using code, create a file called <em>ansible_working/ansible.cfg</em> with the following content:</p>
+<pre>[defaults]
+inventory = inventory
+remote_user = devops
+ask_pass = false
+
+[privilege_escalation]
+become = true
+become_method = sudo
+become_user = root
+become_ask_pass = false</pre>
+<h2>Create a Group Vars File</h2>
+<p>Using code, create a file called <em>ansible_working/group_vars/windows</em> with the following content:</p>
+<pre>---
+ansible_user: administrator@CONTOSO.COM
+ansible_password: Pa11word
+ansible_connection: winrm
+ansible_winrm_transport: kerberos
+ansible_winrm_server_cert_validation: ignore
+ansible_become: false
+...</pre>
+<hr />
+<h1>Running Ad Hoc Commands</h1>
+<p align="center"><iframe width="1024" height="576" src="https://www.youtube.com/embed/WIKETj6h290?wmode=opaque" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen=""></iframe></p>
+<h2>Linux Ad Hoc Command Examples</h2>
+<p><code>ansible rhs2.contoso.com -u root -k -a date<br />
+ansible rhs2.contoso.com -m command -u root -k -a date<br />
+ansible rhs2.contoso.com -m shell -a "cat /var/log/messages | wc -l"<br />
+ansible rhs2.contoso.com -m command -a "hostname" -o<br />
+ansible rhs2.contoso.com -m raw -a "cat /var/log/messages | wc -l"<br />
+ansible rhs2.contoso.com -m user -a "name=uone comment='User One'"<br />
+ansible rhs2.contoso.com -m user -a "name=uone comment='User One' state=present"<br />
+ansible rhs2.contoso.com -m user -a "name=uone state=absent"<br />
+ansible rhs2.contoso.com -m yum -a "name=nmap state=latest"<br />
+ansible rhs2.contoso.com -m yum -a "name=nmap state=absent"<br />
+ansible localhost -m command -a 'id'<br />
+ansible rhs2.contoso.com -m copy -a "src=/etc/hosts dest=/tmp/hosts"<br />
+ansible rhs2.contoso.com -m copy -a 'content="Managed by Ansible\n" dest=/etc/motd'<br />
+ansible rhs2.contoso.com -m replace -a 'regexp="Managed by Ansible\n" replace="" dest=/etc/motd'</code></p>
+<h2>Windows Ad Hoc Command Examples</h2>
+<p><code>ansible ms.contoso.com -m win_reboot<br />
+ansible ms.contoso.com -m win_reboot -u administrator@contoso.com<br />
+ansible dc.contoso.com -m win_domain_user -a "name=uone firstname=user surname=one password=Pa11word state=present"<br />
+ansible windows -m win_ping<br />
+ansible ms.contoso.com -m win_shell -a "hostname" -o<br />
+ansible ms.contoso.com -m win_shell -a "ipconfig /all"<br />
+ansible ms.contoso.com -m win_shell -a "ipconfig /all" -o <br />
+ansible ms.contoso.com -m win_feature -a "name=dhcp include_management_tools=yes state=present"<br />
+ansible ms.contoso.com -m win_feature -a "name=dhcp include_management_tools=yes state=absent"</code></p>
+</body>
+</html>

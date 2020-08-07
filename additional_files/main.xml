@@ -4,19 +4,19 @@
     src: /home/devops/.ansible/roles/devops.ansible_user/files/skel-ansible
     dest: /etc/
 
-- name: Add jdoe
+- name: Add new user
   user:
     name: "{{ username }}"
     state: present
     skeleton: /etc/skel-ansible
     generate_ssh_key: true
 
-- name: fetch user key 
+- name: fetch new user's ssh key 
   fetch:
     src: "/home/{{ username }}/.ssh/id_rsa.pub"
     dest: "files/keys/{{ username }}.pub"
 
-- name: copying the key
+- name: add new user's ssh key to the devops user authorized key file
   authorized_key:
     manage_dir: true
     user: devops

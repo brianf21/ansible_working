@@ -1,1 +1,24 @@
+---
+- name: copy
+  copy:
+    src: /home/devops/.ansible/roles/devops.ansible_user/files/skel-ansible
+    dest: /etc/
 
+- name: Add jdoe
+  user:
+    name: "{{ username }}"
+    state: present
+    skeleton: /etc/skel-ansible
+    generate_ssh_key: true
+
+- name: fetch user key 
+  fetch:
+    src: "/home/{{ username }}/.ssh/id_rsa.pub"
+    dest: "files/keys/{{ username }}.pub"
+
+- name: copying the key
+  authorized_key:
+    manage_dir: true
+    user: devops
+    key: "{{ lookup('file', 'files/keys/{{ username }}.pub/rhs1.contoso.com/home/{{ username }}/.ssh/id_rsa.pub') }}"
+...

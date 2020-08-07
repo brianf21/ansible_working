@@ -10,7 +10,7 @@ h1 { color: DarkSlateGray; }
 <body style="font-family: 'Lato', sans-serif;">
 <h1>Lab 8 - Self Lab</h1>
 <p align="center"><iframe width="1024" height="576" src="https://www.youtube.com/embed/H3vHd-_x-ag?wmode=opaque" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen=""></iframe></p>
-<p>Create a role called devops.ansible_user that will deploy a custom skeleton directory (supplied) then create a user account with ssh keys based off the newly deployed skeleton directory. Below is an example playbook that could be used to deploy the role. Your role should also copy the user's public ssh key to the authorized_key file for the devops for rhs1.contoso.com.</p>
+<p>Create a role called devops.ansible_user that will deploy a custom skeleton directory (supplied) then create a new user account with ssh keys based off the newly deployed skeleton directory. Below is an example playbook that could be used to deploy the role. Your role should also copy the new user's public ssh key to the authorized_key file for the devops for rhs1.contoso.com.</p>
 <p><code>code lab8_script.yml</code></p>
 <pre>---
 - name: Deploy Ansible user based on custom skel

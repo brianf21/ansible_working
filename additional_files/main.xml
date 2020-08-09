@@ -10,6 +10,8 @@
     state: present
     skeleton: /etc/skel-ansible
     generate_ssh_key: true
+    password: "{{ password | password_hash('sha512') }}"
+    state: present
 
 - name: fetch new user's ssh key 
   fetch:

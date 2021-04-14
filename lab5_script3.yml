@@ -22,7 +22,7 @@
         state: touch
 
     - name: Third Task
-      command: ls -l /tmp
+      command: ls -l /tmp/copy_me.txt
       register: ls
 
     - name: Fourth Task

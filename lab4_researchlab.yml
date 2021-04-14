@@ -20,5 +20,6 @@
       comment: "{{ item.value.comment }}"
       password: "{{ password | password_hash('sha512') }}"
       state: present
-    with_dict: "{{ users }}"
+    # with_dict: "{{ users }}"
+    loop "{{ lookup('dict', users) }}"
 ...

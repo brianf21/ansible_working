@@ -14,7 +14,7 @@
         state: touch
 
     - name: Second Task
-      command: ls -l /tmp
+      command: ls -l /tmp/testfile
       register: ls
 
     - name: Third Task

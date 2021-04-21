@@ -103,7 +103,7 @@ cat > /home/devops/ansible_working/lab6_script1.yml << EOF
 ...
 EOF
 
-cat > /home/devops/ansible_working/lab_script2.yml << EOF
+cat > /home/devops/ansible_working/lab6_script2.yml << EOF
 ---
 - name: Messing with host patterns
   hosts: '10.0.0.*'
@@ -115,7 +115,7 @@ cat > /home/devops/ansible_working/lab_script2.yml << EOF
 ...
 EOF
 
-cat > /home/devops/ansible_working/lab_script3.yml << EOF
+cat > /home/devops/ansible_working/lab6_script3.yml << EOF
 ---
 - name: Messing with host patterns
   hosts: 'fhost*'
@@ -127,7 +127,7 @@ cat > /home/devops/ansible_working/lab_script3.yml << EOF
 ...
 EOF
 
-cat > /home/devops/ansible_working/lab_script4.yml << EOF
+cat > /home/devops/ansible_working/lab6_script4.yml << EOF
 ---
 - name: Messing with host patterns
   hosts: group1,group2
@@ -139,7 +139,7 @@ cat > /home/devops/ansible_working/lab_script4.yml << EOF
 ...
 EOF
 
-cat > /home/devops/ansible_working/lab_script5.yml << EOF
+cat > /home/devops/ansible_working/lab6_script5.yml << EOF
 ---
 - name: Messing with host patterns
   hosts: group1,&group2
@@ -151,7 +151,7 @@ cat > /home/devops/ansible_working/lab_script5.yml << EOF
 ...
 EOF
 
-cat > /home/devops/ansible_working/lab_script6.yml << EOF
+cat > /home/devops/ansible_working/lab6_script6.yml << EOF
 ---
 - name: Messing with host patterns
   hosts: group1,!fhost1.contoso.com
@@ -163,7 +163,7 @@ cat > /home/devops/ansible_working/lab_script6.yml << EOF
 ...
 EOF
 
-cat > /home/devops/ansible_working/lab_script7.yml << EOF
+cat > /home/devops/ansible_working/lab6_script7.yml << EOF
 ---
 - name: Messing with host patterns
   hosts: group1,!group2
@@ -175,7 +175,7 @@ cat > /home/devops/ansible_working/lab_script7.yml << EOF
 ...
 EOF
 
-cat > /home/devops/ansible_working/lab_script8.yml << EOF
+cat > /home/devops/ansible_working/lab6_script8.yml << EOF
 ---
 - name: Cleanup server before running play
   import_playbook: lab6_script9.yml
@@ -249,7 +249,7 @@ cat > /home/devops/ansible_working/lab_script8.yml << EOF
 ...
 EOF
 
-cat > /home/devops/ansible_working/lab_script9.yml << EOF
+cat > /home/devops/ansible_working/lab6_script9.yml << EOF
 ---
 - name: Remove software for lab
   hosts: rhs1.contoso.com,rhs2.contoso.com
@@ -267,7 +267,7 @@ cat > /home/devops/ansible_working/lab_script9.yml << EOF
 ...
 EOF
 
-cat > /home/devops/ansible_working/lab_script10.yml << EOF
+cat > /home/devops/ansible_working/lab6_script10.yml << EOF
 ---
 - name: Cleanup server before running play
   import_playbook: lab6_script9.yml
@@ -352,7 +352,7 @@ cat > /home/devops/ansible_working/lab_script10.yml << EOF
 ...
 EOF
 
-cat > /home/devops/ansible_working/lab_script11.yml << EOF
+cat > /home/devops/ansible_working/lab6_script11.yml << EOF
 - action: uri url=http://{{ inventory_hostname }} return_content=yes
   register: webpage
 

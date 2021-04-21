@@ -53,6 +53,7 @@ sudo bash -c "cat > /etc/hosts << EOF
 EOF"
 
 for i in $(seq 1 7); do ssh fhost$i.contoso.com -o StrictHostKeyChecking=accept-new -C hostname; done
+for i in $(seq 1 7); do ssh fhost$i -o StrictHostKeyChecking=accept-new -C hostname; done
 
 for i in $(seq 4 5); do ssh 10.0.0.$i -o StrictHostKeyChecking=accept-new -C hostname; done
 

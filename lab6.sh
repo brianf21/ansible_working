@@ -38,7 +38,7 @@ fhost6.contoso.com
 fhost7.contoso.com
 EOF
 
-sudo cat > /etc/hosts << EOF
+sudo bash -c "cat > /etc/hosts << EOF
 127.0.0.1   localhost localhost.localdomain localhost4 localhost4.localdomain4
 ::1         localhost localhost.localdomain localhost6 localhost6.localdomain6
 127.0.0.1       rhs1.contoso.com rhs1
@@ -50,13 +50,13 @@ sudo cat > /etc/hosts << EOF
 127.0.0.1       fhost5.contoso.com fhost5
 127.0.0.1       fhost6.contoso.com fhost6
 127.0.0.1       fhost7.contoso.com fhost7
-EOF
+EOF"
 
 for i in $(seq 1 7); do ssh fhost$i.contoso.com -o StrictHostKeyChecking=accept-new -C hostname; done
 
 for i in $(seq 4 5); do ssh 10.0.0.$i -o StrictHostKeyChecking=accept-new -C hostname; done
 
-sudo cat > /etc/krb5.conf << EOF
+sudo bash -c "cat > /etc/krb5.conf << EOF
 # To opt out of the system crypto-policies configuration of krb5, remove the
 # symlink at /etc/krb5.conf.d/crypto-policies which will not be recreated.
 includedir /etc/krb5.conf.d/
@@ -89,7 +89,7 @@ includedir /etc/krb5.conf.d/
 # example.com = EXAMPLE.COM
 .contoso.com = CONTOSO.COM
 contoso.com = CONTOSO.COM
-EOF
+EOF"
 
 cat > /home/devops/ansible_working/lab6_script1.yml << EOF
 ---

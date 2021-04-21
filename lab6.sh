@@ -115,7 +115,7 @@ cat > /home/devops/ansible_working/lab_script2.yml << EOF
 ...
 EOF
 
-cat > ansible_working/lab_script3.yml << EOF
+cat > /home/devops/ansible_working/lab_script3.yml << EOF
 ---
 - name: Messing with host patterns
   hosts: 'fhost*'
@@ -127,7 +127,7 @@ cat > ansible_working/lab_script3.yml << EOF
 ...
 EOF
 
-cat > ansible_working/lab_script4.yml << EOF
+cat > /home/devops/ansible_working/lab_script4.yml << EOF
 ---
 - name: Messing with host patterns
   hosts: group1,group2

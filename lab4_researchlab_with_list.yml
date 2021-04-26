@@ -1,0 +1,25 @@
+---
+- name: Create four users with loop
+  hosts: rhs1.contoso.com
+  
+  vars:
+    users:
+      - username: ufive
+        comment: User Five
+      - username: usix
+        comment: User Six
+      - username: useven
+        comment: User Seven
+      - username: ueight
+        comment: User Eight
+       
+  tasks:
+  
+  - name: Create Users Loop
+    user:
+      name: "{{ item.username }}"
+      comment: "{{ item.comment }}"
+      password: "{{ password | password_hash('sha512') }}"
+      state: present
+    loop "{{ users }}"
+...

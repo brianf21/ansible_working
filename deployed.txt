@@ -1,0 +1,5 @@
+#jinja2: trim_blocks:False
+{% print( now() ) %}
+Brian Faris
+CTS4348C
+{{ inventory_hostname }}

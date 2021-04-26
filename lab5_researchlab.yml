@@ -1,0 +1,21 @@
+---
+- name Deploy a file to both Linux and Windows Boxes
+  hosts: linux,windows
+  
+  tasks:
+  
+    - name: Print Facts for each machine
+      debug:
+        msg: "{{ ansible_facts['distribution'] }}"
+        
+    - name: Deploy to Linux Boxes
+      template:
+        src: templates/deployed.txt
+        dest: /tmp/
+      when: ansible_facts['distribution'] == "RedHat"
+      
+    - name: Deploy to Windows Boxes
+      template:
+        src: templates/deployed.txt
+        dest: C:\
+      when: ansible_facts['distribution'] == "Microsoft Windows Server 2019 Standard"

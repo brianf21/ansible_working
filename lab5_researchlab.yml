@@ -10,12 +10,12 @@
         
     - name: Deploy to Linux Boxes
       template:
-        src: templates/deployed.txt
-        dest: /tmp/
+        src: templates/deployed.j2
+        dest: /tmp/deployed.txt
       when: ansible_facts['distribution'] == "RedHat"
       
     - name: Deploy to Windows Boxes
       template:
-        src: templates/deployed.txt
-        dest: C:\
+        src: templates/deployed.j2
+        dest: C:\deployed.txt
       when: ansible_facts['distribution'] == "Microsoft Windows Server 2019 Standard"

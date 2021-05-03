@@ -15,7 +15,7 @@
       when: ansible_facts['distribution'] == "RedHat"
       
     - name: Deploy to Windows Boxes
-      template:
+      win_template:
         src: templates/deployed.j2
         dest: C:\deployed.txt
       when: ansible_facts['distribution'] == "Microsoft Windows Server 2019 Standard"

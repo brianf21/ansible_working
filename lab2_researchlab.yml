@@ -1,1 +1,19 @@
-
+---
+- name: DHCP Server
+  hosts: rhs2.contoso.com
+  tasks:
+    - name: install dhcp server
+      yum:
+        name: dhcp-server
+        state: latest
+    - name: add dhcp to firewall
+      firewalld:
+        service: dhcp
+        permanent: yes
+        state: enabled
+    - name:
+      service:
+        name: dhcpd
+        state: started
+        enabled: yes
+...

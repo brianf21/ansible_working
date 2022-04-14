@@ -11,6 +11,19 @@
         service: dhcp
         permanent: yes
         state: enabled
+    - name: Editing /etc/dhcp/dhcpd.conf
+      blockinfile:
+        path: /etc/dhcp/dhcpd.conf
+        block: |
+          subnet 10.0.0.0 netmask 255.255.255.0 {
+            range 10.0.0.1 10.0.0.254;
+            option domain-name-servers 8.8.8.8,8.8.4.4;
+            option domain-name "contoso.com";
+            option routers 10.0.0.1;
+            option broadcast-address 10.0.0.255;
+            default-lease-time 600;
+            max-lease-time 7200;
+          }
     - name:
       service:
         name: dhcpd

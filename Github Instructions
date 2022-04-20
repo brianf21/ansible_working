@@ -1,0 +1,5 @@
+cd ~
+git clone --no-checkout  https://github.com/brianf21/CTS4348C.git ansible_working/ansible_working.tmp
+mv ansible_working/ansible_working.tmp/.git ansible_working/
+cd ansible_working/
+git reset --hard HEAD
